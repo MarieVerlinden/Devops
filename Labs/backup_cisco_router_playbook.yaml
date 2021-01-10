@@ -1,0 +1,15 @@
+--- #indicator for yaml
+- name: AUTOMATIC BACKUP OF RUNNING-CONFIG #name of play
+  hosts: CSR1kv #alias of host file
+  gather_facts: false #this is turned off bc we're working in a networking environment
+  connection: local #local bc we're not using ssh
+  tasks: #keyword for one or more tasks
+    - name: DISPLAYING THE RUNNING-CONFIG #name of first task
+      ios_command: #ansible doesn't support conf commands so we use this module
+        commands: #commands in playbook for IOS device
+        - show running-config #command
+      register: config #gets output of previous command and stores it in "config"
+    - name: SAVE OUTPUT TO ./backups/ #name of second task
+        copy: #copies files to remote locations
+          content: "{{ config.stdout[0] }}" #what needs to be copied
+          dest: "backups/show_run_{{ inventory_hostname }}.txt" #where it will be copied
